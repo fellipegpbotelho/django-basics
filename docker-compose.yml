@@ -3,6 +3,28 @@ version: '3'
 services:
   db:
     image: postgres
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./docker/postgres/data:/var/lib/postgresql/data
+    networks:
+      - database-network
+
+  db-admin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "fellipegpbotelho@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "postgres"
+    ports:
+      - "8001:80"
+    depends_on:
+      - db
+    networks:
+      - database-network
+
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -12,3 +34,9 @@ services:
       - '8000:8000'
     depends_on:
       - db
+    networks:
+      - database-network
+
+networks:
+  database-network:
+    driver: bridge
